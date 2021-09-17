@@ -1,7 +1,6 @@
 package com.kolesnichenko.springapp.springboot.dao;
 
 import com.kolesnichenko.springapp.springboot.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 

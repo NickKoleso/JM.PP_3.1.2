@@ -63,7 +63,7 @@ public class AdminController {
         return "/edit";
     }
 
-    @PostMapping("/{id}")
+    @PatchMapping("/{id}")
     public String update(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
                          @RequestParam("role") ArrayList<Integer> role) {
         if (bindingResult.hasErrors()) {
