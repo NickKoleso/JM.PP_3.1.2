@@ -1,76 +1,52 @@
 package com.kolesnichenko.springapp.springboot.service;
 
 import com.kolesnichenko.springapp.springboot.dao.UserDao;
+import com.kolesnichenko.springapp.springboot.model.Role;
 import com.kolesnichenko.springapp.springboot.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
-
-    private final UserDao userDao;
-    private final PasswordEncoder passwordEncoder;
+    private UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
+    public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-
-    @Override
-    @Transactional
-    public void addUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDao.addUser(user);
     }
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        userDao.updateUser(user);
+    public User findByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 
     @Override
     @Transactional
-    public void deleteUserById(int id) {
-        userDao.deleteUserById(id);
-    }
-
-
-    @Override
-    @Transactional
-    public User getUserById(int id) {
-        return userDao.getUserById(id);
+    public User save(User user) {
+        return userDao.save(user);
     }
 
     @Override
     @Transactional
-    public List<User> getUsers() {
-        return userDao.getUsers();
+    public User findById(int id) {
+        return userDao.findById(id).get();
     }
 
     @Override
     @Transactional
-    public User getUserByName(String name) {
-        return userDao.getUserByName(name);
+    public Iterable<User> findAll() {
+        return userDao.findAll();
     }
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = getUserByName(username);
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", username));
-        }
-        return user;
+    public void deleteById(int id) {
+        userDao.deleteById(id);
     }
+
+
 }

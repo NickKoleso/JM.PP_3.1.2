@@ -4,10 +4,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,31 +15,26 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column
     private int id;
 
-    @Column(name = "name")
-    @NotEmpty(message = "Name should not be empty")
-    @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
+    @Column
     private String name;
 
-    @Column(name = "surname")
-    @NotEmpty(message = "Surname should not be empty")
-    @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
+    @Column
     private String surname;
 
-    @Column(name = "age")
-    @Min(value = 0, message = "Age should be greater than 0")
+    @Column
     private int age;
 
-    @Column(name = "email")
+    @Column
     private String email;
 
-    @Column(name = "password")
+    @Column
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Role> roles;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    Set<Role> roles;
 
     public User() {
 
@@ -120,7 +114,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getName();
+        return email;
     }
 
     @Override
@@ -143,4 +137,38 @@ public class User implements UserDetails {
         return true;
     }
 
+    public String getStringRoles() {
+        StringBuilder r = new StringBuilder();
+        Iterator<Role> iterator = roles.iterator();
+        while (iterator.hasNext()) {
+            r.append(iterator.next().getName());
+        }
+        return r.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return roles.equals(user.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(roles);
+    }
 }

@@ -1,22 +1,20 @@
 package com.kolesnichenko.springapp.springboot.service;
 
+import com.kolesnichenko.springapp.springboot.model.Role;
 import com.kolesnichenko.springapp.springboot.model.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface UserService extends UserDetailsService {
-    void addUser(User user);
+public interface UserService {
 
-    void updateUser(User user);
+    User findByEmail(String email);
 
-    void deleteUserById(int id);
+    User save(User user);
 
-    User getUserById(int id);
+    User findById(int id);
 
-    List<User> getUsers();
+    Iterable<User> findAll();
 
-    User getUserByName(String name);
-
+    void deleteById(int id);
 
 }

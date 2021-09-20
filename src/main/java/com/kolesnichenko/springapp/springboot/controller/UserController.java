@@ -1,41 +1,72 @@
 package com.kolesnichenko.springapp.springboot.controller;
 
+import com.kolesnichenko.springapp.springboot.model.Role;
+import com.kolesnichenko.springapp.springboot.model.User;
 import com.kolesnichenko.springapp.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Set;
 
 @Controller
 public class UserController {
-    private final UserService userService;
+
+    private UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
-
+    public void setUserService(@Qualifier("userServiceImpl") UserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping("/users")
-    public String printUsers(Model model) {
-        model.addAttribute("user", userService.getUsers());
-        return "/users";
+    @GetMapping("admin")
+    public String showUsers(Model model) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("user", user);
+        model.addAttribute("listUsers", userService.findAll());
+        return "admin";
     }
 
-    @GetMapping("/users/{id}")
-    public String show(@PathVariable("id") int id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "/user";
+    @PostMapping("admin/add")
+    public String addUser(@ModelAttribute("user") User user, @ModelAttribute("role") String role) {
+        Role newRole = new Role((int) (role.equals("ADMIN") ? 1L : 2L), role);
+        Set<Role> roles = new HashSet<>();
+        roles.add(newRole);
+        user.setRoles(roles);
+        userService.save(user);
+
+//        Set<Role> role = new HashSet<>();
+//        role.add(new Role(newRoles));
+//        user.setRoles(role);
+//        userService.save(user);
+        return "redirect:/admin";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String loginPage() {
-        return "/login";
+    @PostMapping("admin/{id}")
+    public String updateUser(@ModelAttribute("user") User user, @ModelAttribute("role") String role) {
+        Role newRole = new Role((int) (role.equals("ADMIN") ? 1L : 2L), role);
+        Set<Role> roles = new HashSet<>();
+        roles.add(newRole);
+        user.setRoles(roles);
+        userService.save(user);
+        return "redirect:/admin";
     }
 
+    @DeleteMapping("admin/{id}")
+    public String deleteUser(@PathVariable("id") int id) {
+        userService.deleteById(id);
+        return "redirect:/admin";
+    }
 
+    @GetMapping("user")
+    public String getUser(Model model) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("user", user);
+        return "user";
+
+    }
 }
