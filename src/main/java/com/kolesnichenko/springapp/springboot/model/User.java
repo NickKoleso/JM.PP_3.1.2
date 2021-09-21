@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -15,26 +14,26 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "id")
     private int id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @Column
+    @Column(name = "surname")
     private String surname;
 
-    @Column
+    @Column(name = "age")
     private int age;
 
-    @Column
+    @Column(name = "email")
     private String email;
 
-    @Column
+    @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    Set<Role> roles;
+    @ManyToMany(fetch = FetchType.LAZY)
+    private Set<Role> roles;
 
     public User() {
 
@@ -114,7 +113,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return getName();
     }
 
     @Override
@@ -137,7 +136,7 @@ public class User implements UserDetails {
         return true;
     }
 
-    public String getStringRoles() {
+    public String getStringRoles(){
         StringBuilder r = new StringBuilder();
         Iterator<Role> iterator = roles.iterator();
         while (iterator.hasNext()) {
@@ -157,18 +156,5 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return roles.equals(user.roles);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(roles);
     }
 }

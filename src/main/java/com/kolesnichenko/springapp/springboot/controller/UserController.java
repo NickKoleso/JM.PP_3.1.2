@@ -2,24 +2,33 @@ package com.kolesnichenko.springapp.springboot.controller;
 
 import com.kolesnichenko.springapp.springboot.model.Role;
 import com.kolesnichenko.springapp.springboot.model.User;
+import com.kolesnichenko.springapp.springboot.service.RoleService;
 import com.kolesnichenko.springapp.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
 
     private UserService userService;
 
+    private RoleService roleService;
+
     @Autowired
-    public void setUserService(@Qualifier("userServiceImpl") UserService userService) {
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
@@ -27,38 +36,27 @@ public class UserController {
     public String showUsers(Model model) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         model.addAttribute("user", user);
-        model.addAttribute("listUsers", userService.findAll());
+        model.addAttribute("users", userService.getUsers());
         return "admin";
     }
 
     @PostMapping("admin/add")
-    public String addUser(@ModelAttribute("user") User user, @ModelAttribute("role") String role) {
-        Role newRole = new Role((int) (role.equals("ADMIN") ? 1L : 2L), role);
-        Set<Role> roles = new HashSet<>();
-        roles.add(newRole);
-        user.setRoles(roles);
-        userService.save(user);
-
-//        Set<Role> role = new HashSet<>();
-//        role.add(new Role(newRoles));
-//        user.setRoles(role);
-//        userService.save(user);
+    public String addUser(@ModelAttribute("user") User user, @RequestParam("role") ArrayList<Integer> role) {
+        user.setRoles(role.stream().map((r) -> roleService.getByIdRole(r)).collect(Collectors.toSet()));
+        userService.addUser(user);
         return "redirect:/admin";
     }
 
-    @PostMapping("admin/{id}")
-    public String updateUser(@ModelAttribute("user") User user, @ModelAttribute("role") String role) {
-        Role newRole = new Role((int) (role.equals("ADMIN") ? 1L : 2L), role);
-        Set<Role> roles = new HashSet<>();
-        roles.add(newRole);
-        user.setRoles(roles);
-        userService.save(user);
+    @PostMapping("/admin/{id}")
+    public String updateUser(@ModelAttribute("user") User user, @RequestParam("role") ArrayList<Integer> role) {
+        user.setRoles(role.stream().map((r) -> roleService.getByIdRole(r)).collect(Collectors.toSet()));
+        userService.updateUser(user);
         return "redirect:/admin";
     }
 
-    @DeleteMapping("admin/{id}")
+    @DeleteMapping("/admin/{id}")
     public String deleteUser(@PathVariable("id") int id) {
-        userService.deleteById(id);
+        userService.deleteUserById(id);
         return "redirect:/admin";
     }
 
@@ -68,5 +66,9 @@ public class UserController {
         model.addAttribute("user", user);
         return "user";
 
+    }
+    @GetMapping("login")
+    public String loginPage() {
+        return "login";
     }
 }

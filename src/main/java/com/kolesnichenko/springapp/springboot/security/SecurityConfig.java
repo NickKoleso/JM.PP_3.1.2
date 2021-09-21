@@ -1,6 +1,6 @@
 package com.kolesnichenko.springapp.springboot.security;
 
-import com.kolesnichenko.springapp.springboot.service.MyUserDetailService;
+import com.kolesnichenko.springapp.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +18,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private MyUserDetailService myUserDetailService;
+    private UserService userService;
     private LoginSuccessHandler loginSuccessHandler;
     @Autowired
-    public void setMyUserDetailService(MyUserDetailService myUserDetailService) {
-        this.myUserDetailService = myUserDetailService;
+    public void setMyUserDetailService(UserService userService) {
+        this.userService = userService;
     }
     @Autowired
     public void setLoginSuccessHandler(LoginSuccessHandler loginSuccessHandler) {
@@ -33,22 +33,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(myUserDetailService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+
+         return new BCryptPasswordEncoder();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()
-//                .loginPage("/login") //указываем страницу с формой логина
+                .loginPage("/login") //указываем страницу с формой логина
                 .successHandler(loginSuccessHandler) //логика обработки при вводе логина
-//                .loginProcessingUrl("/login") //указываем action с формы логина
-//                .usernameParameter("j_username")
-//                .passwordParameter("j_password")
+                .loginProcessingUrl("/login") //указываем action с формы логина
+                .usernameParameter("name")
+                .passwordParameter("password")
                 .permitAll(); //доступ к форме логина всем
         http.logout()
                 .permitAll() //разрешаем делать логаут всем
