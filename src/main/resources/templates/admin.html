@@ -188,7 +188,7 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <form th:method="DELETE"
-                                                          th:action="@{/admin/{id}(id=${user.getId()})}">
+                                                          th:action="@{/admin/delete/{id}(id=${user.getId()})}">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title"
                                                                 th:attr="id='deleteModal-'+${user.id}">Delete
@@ -257,7 +257,7 @@
                                                                         th:name="role"
                                                                         multiple="multiple" readonly="readonly">
                                                                     <option value="1" readonly="readonly">ADMIN</option>
-                                                                    <option selected value="2" readonly="readonly">USER </option>
+                                                                    <option  selected value="2" readonly="readonly">USER </option>
                                                                 </select>
                                                                 <input name="id" type="hidden"
                                                                        th:value="${user.id}">

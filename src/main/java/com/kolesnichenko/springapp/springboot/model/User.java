@@ -140,7 +140,8 @@ public class User implements UserDetails {
         StringBuilder r = new StringBuilder();
         Iterator<Role> iterator = roles.iterator();
         while (iterator.hasNext()) {
-            r.append(iterator.next().getName());
+            r.append(iterator.next().getName()).append("  ");
+
         }
         return r.toString();
     }
